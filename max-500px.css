@@ -2,7 +2,7 @@ body,html {
 	font-family: Arial
 }
 #video-list {
-	width: 400px;
+	width: 100%;
 	border: 1px solid #DADADA;
 }
 #header {
@@ -24,7 +24,7 @@ body,html {
 	padding: 10px;
 	padding-top: 5px;
 }
-div.video-holder {
+article.video-holder {
 	display: block;
 	border: 1px solid #DADADA;
 	padding: 5px;
@@ -32,7 +32,7 @@ div.video-holder {
 	margin-bottom: 13px;
 	height: 75px;
 }	
-div.video-holder img {
+article.video-holder img {
 	width: 130px;
 	height: 75px;
 	float: left;
@@ -49,4 +49,16 @@ span.video-name {
 span.video-date {
 	font-size: 0.7em;
 	color: grey;
+}
+#pagination {
+	display: none;
+}
+#load {
+	text-align: center;
+	margin: 0 auto;
+	padding: 15px;
+	color: white;
+	background: #2868d6;
+	width: 120px;
+	font-weight: bold;
 }
