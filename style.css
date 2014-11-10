@@ -74,3 +74,24 @@ a.next {
 #load {
 	display: none;
 }
+img.play {
+	position: absolute;
+	top: 30px;
+	left: 70px;
+}
+p.title {
+	display: none;
+}
+div.play-container:hover p {
+	display: block;
+	width: 180px;
+	height: 95px;
+	top: -16px;
+	padding: 10px;
+	position: absolute;
+	background-color: rgba(0,0,0,0.8);
+	color: white;
+}
+div.play-container {
+	position: relative;
+}
