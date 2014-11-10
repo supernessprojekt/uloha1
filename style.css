@@ -95,3 +95,57 @@ div.play-container:hover p {
 div.play-container {
 	position: relative;
 }
+
+@media only screen and (max-width: 500px){
+
+	article.video-holder {
+		display: block;
+		border: 1px solid #DADADA;
+		padding: 5px;
+		margin: 2px;
+		margin-bottom: 13px;
+		height: 75px;
+	}	
+	img.placeholder {
+		width: 130px;
+		height: 75px;
+		float: left;
+		margin-right: 10px;
+	}
+	span.video-name {
+		display: block;
+		font-size: 0.8em;
+		font-weight: bold;
+		color: #002B98;
+		padding-top: 0px;
+		margin-bottom: 10px;
+	}
+	span.video-date {
+		font-size: 0.7em;
+		color: grey;
+	}
+	#pagination {
+		display: none;
+	}
+	#load {
+		display: block;
+		text-align: center;
+		margin: 0 auto;
+		padding: 15px;
+		color: white;
+		background: #2868d6;
+		width: 120px;
+		font-weight: bold;
+	}
+	img.play {
+		position: absolute;
+		top: 10px;
+		left: 40px;
+	}
+	p.title {
+		display: none;
+	}
+	div.play-container:hover p {
+		display: none;
+	}
+}
