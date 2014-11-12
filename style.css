@@ -23,7 +23,6 @@ header {
 }
 article {
 	display: inline-block;
-	width: 200x;
 	border: 1px solid #DADADA;
 	padding: 5px;
 	margin: 2px;
@@ -37,6 +36,10 @@ h1 {
 	padding-left: 5px;
 	padding-top: 0px;
 	margin-bottom: 10px;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	overflow: hidden;
+	width: 190px;
 }
 time {
 	font-size: 0.7em;
@@ -103,7 +106,7 @@ div.play-container {
 	position: relative;
 }
 
-@media only screen and (max-width: 500px){
+@media only screen and (max-width: 460px){
 
 	article {
 		display: block;
@@ -126,6 +129,8 @@ div.play-container {
 		color: #002B98;
 		padding-top: 0px;
 		margin-bottom: 10px;
+		padding-left: 0px;
+		width: 140px;
 	}
 	time {
 		font-size: 0.7em;
@@ -159,10 +164,21 @@ div.play-container {
 }
 
 @media only screen and (max-width: 320px) {
+  article {
+  			height: 100%;
+
+  }
   img {
     display: none;
   }
   time {
     padding-left: 5px;
+  }
+  h1 {
+  	padding-left: 5px;
+  	margin-right: 5px;
+  	overflow: visible;
+  	white-space: normal;
+  	width: 100%;
   }
 } 
