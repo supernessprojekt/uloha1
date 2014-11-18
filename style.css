@@ -47,6 +47,7 @@ time {
 	padding-left: 5px;
 }
 nav {
+	display: block;
 	text-align: center;
 	margin-bottom: 15px;
 	margin-top: 5px;
@@ -54,6 +55,7 @@ nav {
 	border-top: 1px solid #DADADA;
 }
 nav a {
+	display: inline;
 	padding: 10px;
 	color: #002B98;
 	background: #E5EAFF;

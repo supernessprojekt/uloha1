@@ -1,61 +1,89 @@
-var videos = {};
+function load(url, callback) {
 
-videos.loadJSON = function()
-{
-	
-	var xmlhttp = new XMLHttpRequest();
-	xmlhttp.onreadystatechange=function()
-	{
-		if (xmlhttp.readyState==4 && xmlhttp.status==200)
-		{
-			var JSONObject = JSON.parse(xmlhttp.responseText);
-			videos.write(JSONObject);
-		}
-	}
-	xmlhttp.open("GET","http://academy.tutoky.com/api/json.php",true);
-	xmlhttp.send();
+  var xhr = new XMLHttpRequest();
+
+  xhr.onreadystatechange = ensureReadiness;
+
+  function ensureReadiness() {
+    if(xhr.readyState < 4) {
+      return;
+    }
+    if(xhr.status !== 200) {
+      return;
+    }
+    // all is well 
+    if(xhr.readyState === 4) {
+      JSONObject = JSON.parse(xhr.responseText);
+      callback(JSONObject);
+    }          
+  }
+  xhr.open('GET', url, true);
+  xhr.send('');
 }
 
-videos.time = function(date) {
+(function(window,document,undefined) {
+	'use strict';
+  var init  = window.init = {
+    option : function(JSONObject) {
+      var item = "";
+      var i;
+      var body = "";
+      for(i=0; i<12; i++) {
+        var article = document.createElement("article");      // zaciatok article
+        var div = document.createElement("div");              // div play-container
+        div.className = "play-container";
+
+        var p = document.createElement("p");                    // p - hover text
+        p.textContent = JSONObject[i].title;   
+
+        var img_play = document.createElement("img");           // img src="play.png"  
+        img_play.className = "play";
+        img_play.src = "play.png";
+
+        var img_placeholder = document.createElement("img");    //img src="placeholder.jpg"
+        img_placeholder.className = "placeholder";
+        img_placeholder.src = "placeholder.jpg";
+
+        var h1 = document.createElement("h1");                         
+        h1.textContent = JSONObject[i].title; 
+
+        var time = document.createElement("time");   
+        time.datetime = JSONObject[i].timestamp;
+        time.textContent = show_time(JSONObject[i].timestamp);  
+
+        article.appendChild(div); 
+        div.appendChild(p);
+        div.appendChild(img_play);
+        div.appendChild(img_placeholder);
+        article.appendChild(h1);
+        article.appendChild(time);
+
+        document.getElementById('container').appendChild(article);
+      }
+    }
+  }
+} (window, document))
+
+load("http://academy.tutoky.com/api/json.php", init.option);
+
+show_time = function(date) {
+  date = parseInt(date);
 	var d = new Date(date);
-	var weekday = new Array(7);
-	weekday[0]=  "Sunday";
-	weekday[1] = "Monday";
-	weekday[2] = "Tuesday";
-	weekday[3] = "Wednesday";
-	weekday[4] = "Thursday";
-	weekday[5] = "Friday";
-	weekday[6] = "Saturday";
-
-	var day = weekday[d.getDay()]; 
-	var dayDate = d.getDate();
-	var month = d.getMonth()+1;
-	var year = d.getFullYear();
-	return day + ", " + dayDate + ". " + month +  ". " + year;
+	
+	return d.toDateString();
 }
 
-videos.write = function(JSONObject)
-{
+// function pages(JSONObject) {
+// 	var page = "";
+// 	var output = "";
+// 	var numberOfPages = JSONObject.length / 12;
 
+// 	for (i=1; i<numberOfPages+1; i++) {
+// 		page += '<a href="#">' + i + '</a>';
+// 		output += page;
+// 		page = "";
+// 	}
+// 	document.getElementById("pages").innerHTML = output;
+// }
 
-	var item = "";
-	var i;
-	var body = "";
-
-	for(i=0; i<12; i++)
-	{
-		item += '<article>';
-		item += '<div class="play-container">';
-		item += '<p>'+JSONObject[i].title+'</p>';
-		item += '<img src="play.png" class="play">';
-		item += '<img src="placeholder.jpg" class="placeholder">';
-		item += '</div>';
-		item += '<h1>'+JSONObject[i].title+'</h1>';
-		item += '<time datetime="'+JSONObject[i].timestamp+'">'+videos.time(JSONObject[i].timestamp*1)+'</time>';
-		item += '</article>';
-		body += item;
-		item = "";
-	}
-	document.getElementById("container").innerHTML = body;
-}
-videos.loadJSON();
+// videos.loadJSON();
