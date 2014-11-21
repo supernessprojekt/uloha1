@@ -63,15 +63,16 @@ nav a {
 	border-radius: 5px;
 	font-size: 0.8em;
 	font-weight: bold;
+	margin: 3px;
 }
-a.previous {
+#previous {
 	background: #2868d6;
 	color: #E5EAFF;
 	padding-left: 15px;
 	border-top-left-radius: 20px;
 	border-bottom-left-radius: 20px;
 }
-a.next {
+#next {
 	background: #2868d6;
 	color: #E5EAFF;
 	padding-right: 15px;
