@@ -1,3 +1,4 @@
+//load JSON from url
 function load(url, callback) {
 
   var xhr = new XMLHttpRequest();
@@ -23,45 +24,69 @@ function load(url, callback) {
 
 (function(window,document,undefined) {
   'use strict';
-  var init  = window.init = {
-    actualPage : 1, 
-    actualItem: 0,
-    actualLastItem: 12,
-    paginationInit: 0, 
-    data:function(data){
-      init.Json = data;
-      init.loadJSON(init.Json);
+  var paginator  = window.paginator = {
+    settings: {
+      itemsPerPage: 12,           
+      actualPage : 1, 
+      actualItem: 0,
+      actualLastItem: 12,
+      numberOfPages: 0,
+      container: "container"
     },
-    loadJSON : function(JSONObject) {
-      var i;      
-      for(i=init.actualItem; i<init.actualLastItem; i++) {
-        var div_wrapper = document.createElement("div");
-        div_wrapper.id = "wrapper";
 
-        var article = document.createElement("article");      // zaciatok article
+    // save data to this.data, init pagination and render articles
+    init:function(data){
+      this.data = data;
+      this.settings.numberOfPages = Math.ceil(this.data.length / this.settings.itemsPerPage);
+      this.renderArticles(paginator.data);
+      this.paginate();
+    },
+
+    // hide/show previous/next button, render pagination
+    paginate: function() {
+      document.getElementById("pages").innerHTML = "";
+      if (paginator.settings.actualPage === 1) {
+        document.getElementById("previous").style.display = "none";
+      }
+      else {
+        document.getElementById("previous").style.display = "inline";
+      }
+      if (paginator.settings.actualPage === paginator.settings.numberOfPages) {
+        document.getElementById("next").style.display = "none";
+      }
+      else {
+        document.getElementById("next").style.display = "inline";
+      }
+      paginator.renderPagination(JSONObject); 
+    },
+
+    renderArticles : function() {
+      var i;   
+      var fragment = document.createDocumentFragment();   
+      for(i=this.settings.actualItem; i<this.settings.actualLastItem; i++) {
+        var article = document.createElement("article");      
         article.id = i;
-        var div = document.createElement("div");              // div play-container
+        var div = document.createElement("div");              
         div.className = "play-container";
 
-        var p = document.createElement("p");                    // p - hover text
-        p.textContent = JSONObject[i].title;   
+        var p = document.createElement("p");                  
+        p.textContent = this.data[i].title;   
 
-        var img_play = document.createElement("img");           // img src="play.png"  
+        var img_play = document.createElement("img");         
         img_play.className = "play";
         img_play.src = "play.png";
 
-        var img_placeholder = document.createElement("img");    //img src="placeholder.jpg"
+        var img_placeholder = document.createElement("img");  
         img_placeholder.className = "placeholder";
         img_placeholder.src = "placeholder.jpg";
 
         var h1 = document.createElement("h1");                         
-        h1.textContent = JSONObject[i].title; 
+        h1.textContent = this.data[i].title; 
 
         var time = document.createElement("time");   
-        time.datetime = JSONObject[i].timestamp;
-        time.textContent = init.show_time(JSONObject[i].timestamp);  
+        time.datetime = this.data[i].timestamp;
+        time.textContent = paginator.show_time(this.data[i].timestamp);  
 
-        div_wrapper.appendChild(article);
         article.appendChild(div); 
         div.appendChild(p);
         div.appendChild(img_play);
@@ -69,66 +94,62 @@ function load(url, callback) {
         article.appendChild(h1);
         article.appendChild(time);
 
-        document.getElementById('container').appendChild(article);
+        fragment.appendChild(article);
       }
-      if (init.paginationInit === 0) {
-        init.pagination(JSONObject);
-        init.paginationInit = 1;
-        // for (i=0; i<12; i++) {
-        //   document.getElementById(i).style.display = "inline-block";
-        // }
-      }
+      document.getElementById(this.settings.container).appendChild(fragment); 
+      this.paginate();     
     },
-    pagination : function(JSONObject) {
-      var numberOfPages = JSONObject.length / 12;
-      for (var i=1; i<numberOfPages+1; i++) {
+
+    renderPagination : function() {
+      for (var i = 1; i < this.settings.numberOfPages + 1; i++) {
         var a = document.createElement("a");   
         a.href= "#";
         a.textContent = i;
+        a.id = "page" + i;
         document.getElementById('pages').appendChild(a);
       }
     },
+
     show_time: function(date) {
       date = parseInt(date);
       var d = new Date(date);
-      
       return d.toDateString();
     },
+
     nextPage: function() {
-      init.actualPage++;
-      console.log(init.actualPage);
-      var numberOfPages = JSONObject.length / 12;
-      if(init.actualPage === numberOfPages.length) {
-        document.getElementById("next").style.display = "none";
+      paginator.settings.actualPage++;
+      document.getElementById("container").innerHTML = "";
+      if ((paginator.settings.actualLastItem + paginator.settings.itemsPerPage) > paginator.data.length) {
+        var lastPage = paginator.data.length - paginator.settings.actualLastItem;
+        paginator.settings.actualLastItem += lastPage;
+        console.log(paginator.settings.actualLastItem);
       }
-      var elem = document.getElementById("wrapper");
-      elem.parentNode.removeChild(elem);
-      // for (var i = init.actualItem; i < init.actualLastItem; i++) {
-      //   document.getElementById(i).style.display = "none";
-      // }
-      init.actualItem += 12;
-      init.actualLastItem += 12;
-      
-      init.loadJSON(init.Json);
+      else {
+        paginator.settings.actualLastItem += paginator.settings.itemsPerPage;
+      }
+      paginator.settings.actualItem += paginator.settings.itemsPerPage;
+      console.log(paginator.settings.actualItem);
+      paginator.renderArticles(paginator.data);
     },
 
     previousPage: function() {
-      init.actualPage--;
-      console.log(init.actualPage);
-      if(init.actualPage === 1) {
-        document.getElementById("previous").style.display = "none";
+      paginator.settings.actualPage--;
+      document.getElementById("container").innerHTML = "";
+      console.log(paginator.data.length);
+      if (paginator.settings.actualLastItem === paginator.data.length) {
+        var lastPage = paginator.settings.actualLastItem - paginator.settings.actualItem;
+        paginator.settings.actualLastItem -= lastPage;
       }
-        for (var i = init.actualItem; i < init.actualLastItem; i++) {
-          document.getElementById(i).style.display = "none";
-        }
-        init.actualItem -= 12;
-        init.actualLastItem -= 12;
-        
-        init.loadJSON(init.Json);
+      else {
+        paginator.settings.actualLastItem -= paginator.settings.itemsPerPage; 
+      }
+      paginator.settings.actualItem -= paginator.settings.itemsPerPage;
+      paginator.renderArticles(paginator.data);
     }
   }
 } (window, document))
 
-load("http://academy.tutoky.com/api/json.php", init.data);
-document.getElementById("next").addEventListener("click", init.nextPage);
-document.getElementById("previous").addEventListener("click", init.previousPage);
+load("http://academy.tutoky.com/api/json.php", paginator.init.bind(paginator));
+
+document.getElementById("next").addEventListener("click", paginator.nextPage);
+document.getElementById("previous").addEventListener("click", paginator.previousPage);
