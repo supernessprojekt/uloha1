@@ -27,6 +27,7 @@ article {
 	padding: 5px;
 	margin: 2px;
 	margin-bottom: 13px;
+	position: relative;
 }	
 h1 {
 	display: block;
@@ -86,11 +87,13 @@ img.play {
 	position: absolute;
 	top: 30px;
 	left: 70px;
+	filter: drop-shadow(0px 0px 15px black);
 }
-div.play-container p {
-  width: 180px;
-  height: 95px;
-  top: -16px;
+#hover {
+  width: 191px;
+  height: 169px;
+  top: 0px;
+  left: 0px;
   padding: 10px;
   position: absolute;
 	opacity: 0;
@@ -100,8 +103,8 @@ div.play-container p {
    -moz-transition: opacity .25s ease-in-out;
    -webkit-transition: opacity .25s ease-in-out;
 }
-div.play-container:hover p {
-  opacity: 0.8;
+#hover:hover {
+  opacity: 0.9;
   display: block;
 	background-color: rgba(0,0,0,0.8);
 }
@@ -158,17 +161,17 @@ div.play-container {
 		top: 10px;
 		left: 40px;
 	}
-	div.play-container p {
+	#hover {
 		display: none;
 	}
-	div.play-container:hover p {
+	#hover:hover {
 		display: none;
 	}
 }
 
 @media only screen and (max-width: 320px) {
   article {
-  			height: 100%;
+  	height: 100%;
 
   }
   img {

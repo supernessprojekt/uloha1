@@ -57,24 +57,38 @@ function load(url, callback) {
       else {
         document.getElementById("next").style.display = "inline";
       }
-      paginator.renderPagination(JSONObject); 
+      for (var i = 1; i < this.settings.numberOfPages + 1; i++) {
+        var a = document.createElement("a");   
+        a.href= "#";
+        a.textContent = i;
+        a.data_id = i;
+        document.getElementById('pages').appendChild(a);
+      }
     },
 
+    // render articles on current page from json object, call paginate function
     renderArticles : function() {
       var i;   
-      var fragment = document.createDocumentFragment();   
+      var fragment = document.createDocumentFragment(); 
       for(i=this.settings.actualItem; i<this.settings.actualLastItem; i++) {
         var article = document.createElement("article");      
         article.id = i;
         var div = document.createElement("div");              
         div.className = "play-container";
 
-        var p = document.createElement("p");                  
-        p.textContent = this.data[i].title;   
+        var div_hover = document.createElement("div");    
+        div_hover.id = "hover";
+        var p_hover = document.createElement("p");
+        p_hover.textContent = this.data[i].title;  
+        var p_categories = document.createElement("p");
+        
+        var categories = (this.data[i].categories).toString();
+        categories = categories.replace(/,/g , ", ")
+        p_categories.textContent = categories; 
 
         var img_play = document.createElement("img");         
         img_play.className = "play";
-        img_play.src = "play.png";
+        img_play.src = "playbutton.png";
 
         var img_placeholder = document.createElement("img");  
         img_placeholder.className = "placeholder";
@@ -88,28 +102,21 @@ function load(url, callback) {
         time.textContent = paginator.show_time(this.data[i].timestamp);  
 
         article.appendChild(div); 
-        div.appendChild(p);
+        article.appendChild(div_hover);
         div.appendChild(img_play);
         div.appendChild(img_placeholder);
         article.appendChild(h1);
         article.appendChild(time);
+        div_hover.appendChild(p_hover);
+        div_hover.appendChild(p_categories);
 
-        fragment.appendChild(article);
+        fragment.appendChild(article);    // save article to document fragment
       }
-      document.getElementById(this.settings.container).appendChild(fragment); 
+      document.getElementById(this.settings.container).appendChild(fragment);   // load all articles from document fragment
       this.paginate();     
     },
 
-    renderPagination : function() {
-      for (var i = 1; i < this.settings.numberOfPages + 1; i++) {
-        var a = document.createElement("a");   
-        a.href= "#";
-        a.textContent = i;
-        a.id = "page" + i;
-        document.getElementById('pages').appendChild(a);
-      }
-    },
-
+    // parse date from json timestamp to readable output
     show_time: function(date) {
       date = parseInt(date);
       var d = new Date(date);
@@ -145,11 +152,19 @@ function load(url, callback) {
       }
       paginator.settings.actualItem -= paginator.settings.itemsPerPage;
       paginator.renderArticles(paginator.data);
+    },
+
+    concretePage: function() {
     }
   }
 } (window, document))
 
 load("http://academy.tutoky.com/api/json.php", paginator.init.bind(paginator));
 
+// pagination listeners
 document.getElementById("next").addEventListener("click", paginator.nextPage);
 document.getElementById("previous").addEventListener("click", paginator.previousPage);
+
+var links = document.getElementById("pages").getElementsByTagName("a");   // this works, it targets all "a" in "div"
+console.log(links);
+links.addEventListener("click", paginator.concretePage);    // how to set event listener on "a" in "div"?
