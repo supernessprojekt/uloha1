@@ -46,28 +46,29 @@ function load(url, callback) {
     paginate: function() {
       document.getElementById("pages").innerHTML = "";
       if (paginator.settings.actualPage === 1) {
-        document.getElementById("previous").style.display = "none";
+        document.getElementById("previous").style.visibility = "hidden";
       }
       else {
-        document.getElementById("previous").style.display = "inline";
+        document.getElementById("previous").style.visibility = "initial";
       }
       if (paginator.settings.actualPage === paginator.settings.numberOfPages) {
-        document.getElementById("next").style.display = "none";
+        document.getElementById("next").style.visibility = "hidden";
       }
       else {
-        document.getElementById("next").style.display = "inline";
+        document.getElementById("next").style.visibility = "initial";
       }
       for (var i = 1; i < this.settings.numberOfPages + 1; i++) {
         var a = document.createElement("a");   
         a.href= "#";
         a.textContent = i;
-        a.data_id = i;
+        a.setAttribute("data", i);
         document.getElementById('pages').appendChild(a);
       }
     },
 
     // render articles on current page from json object, call paginate function
     renderArticles : function() {
+      document.getElementById("container").innerHTML = "";
       var i;   
       var fragment = document.createDocumentFragment(); 
       for(i=this.settings.actualItem; i<this.settings.actualLastItem; i++) {
@@ -125,23 +126,23 @@ function load(url, callback) {
 
     nextPage: function() {
       paginator.settings.actualPage++;
-      document.getElementById("container").innerHTML = "";
+      // document.getElementById("container").innerHTML = "";
       if ((paginator.settings.actualLastItem + paginator.settings.itemsPerPage) > paginator.data.length) {
         var lastPage = paginator.data.length - paginator.settings.actualLastItem;
         paginator.settings.actualLastItem += lastPage;
-        console.log(paginator.settings.actualLastItem);
       }
       else {
         paginator.settings.actualLastItem += paginator.settings.itemsPerPage;
       }
       paginator.settings.actualItem += paginator.settings.itemsPerPage;
-      console.log(paginator.settings.actualItem);
       paginator.renderArticles(paginator.data);
+      console.log(paginator.settings.actualItem);
+      console.log(paginator.settings.actualLastItem);
     },
 
     previousPage: function() {
       paginator.settings.actualPage--;
-      document.getElementById("container").innerHTML = "";
+      // document.getElementById("container").innerHTML = "";
       console.log(paginator.data.length);
       if (paginator.settings.actualLastItem === paginator.data.length) {
         var lastPage = paginator.settings.actualLastItem - paginator.settings.actualItem;
@@ -154,7 +155,23 @@ function load(url, callback) {
       paginator.renderArticles(paginator.data);
     },
 
-    concretePage: function() {
+    concretePage: function(event) {
+
+      var a_target = event.target;
+      var attribute = a_target.getAttribute("data");
+      attribute = parseInt(attribute);
+      if (attribute > 0) {    //check if event.target is a number
+        paginator.settings.actualPage = attribute;
+        paginator.settings.actualItem = (attribute - 1)  * paginator.settings.itemsPerPage;
+
+        if (paginator.settings.numberOfPages === paginator.settings.actualPage) {
+          paginator.settings.actualLastItem = paginator.data.length;
+        }
+        else {
+          paginator.settings.actualLastItem = paginator.settings.actualItem + paginator.settings.itemsPerPage;
+        }
+        paginator.renderArticles(paginator.data);
+      }
     }
   }
 } (window, document))
@@ -165,6 +182,7 @@ load("http://academy.tutoky.com/api/json.php", paginator.init.bind(paginator));
 document.getElementById("next").addEventListener("click", paginator.nextPage);
 document.getElementById("previous").addEventListener("click", paginator.previousPage);
 
+document.getElementById("pages").addEventListener("click", paginator.concretePage);
+
 var links = document.getElementById("pages").getElementsByTagName("a");   // this works, it targets all "a" in "div"
-console.log(links);
-links.addEventListener("click", paginator.concretePage);    // how to set event listener on "a" in "div"?
+// links.addEventListener("click", paginator.concretePage);    // how to set event listener on "a" in "div"?
