@@ -40,6 +40,7 @@ function load(url, callback) {
       this.settings.numberOfPages = Math.ceil(this.data.length / this.settings.itemsPerPage);
       this.renderArticles(paginator.data);
       this.paginate();
+      this.showFilter();
     },
 
     // hide/show previous/next button, render pagination
@@ -59,19 +60,18 @@ function load(url, callback) {
       }
       for (var i = 1; i < this.settings.numberOfPages + 1; i++) {
         var a = document.createElement("a");   
-        a.href= "#";
+        a.href = "#";
         a.textContent = i;
-        a.setAttribute("data", i);
+        a.setAttribute("data-page", i);
         document.getElementById('pages').appendChild(a);
       }
     },
 
     // render articles on current page from json object, call paginate function
     renderArticles : function() {
-      document.getElementById("container").innerHTML = "";
       var i;   
       var fragment = document.createDocumentFragment(); 
-      for(i=this.settings.actualItem; i<this.settings.actualLastItem; i++) {
+      for(i = this.settings.actualItem; i < this.settings.actualLastItem; i++) {
         var article = document.createElement("article");      
         article.id = i;
         var div = document.createElement("div");              
@@ -95,18 +95,18 @@ function load(url, callback) {
         img_placeholder.className = "placeholder";
         img_placeholder.src = "placeholder.jpg";
 
-        var h1 = document.createElement("h1");                         
-        h1.textContent = this.data[i].title; 
+        var h2 = document.createElement("h2");                         
+        h2.textContent = this.data[i].title; 
 
         var time = document.createElement("time");   
         time.datetime = this.data[i].timestamp;
-        time.textContent = paginator.show_time(this.data[i].timestamp);  
+        time.textContent = paginator.showTime(this.data[i].timestamp);  
 
         article.appendChild(div); 
         article.appendChild(div_hover);
         div.appendChild(img_play);
         div.appendChild(img_placeholder);
-        article.appendChild(h1);
+        article.appendChild(h2);
         article.appendChild(time);
         div_hover.appendChild(p_hover);
         div_hover.appendChild(p_categories);
@@ -118,15 +118,51 @@ function load(url, callback) {
     },
 
     // parse date from json timestamp to readable output
-    show_time: function(date) {
+    showTime: function(date) {
       date = parseInt(date);
       var d = new Date(date);
       return d.toDateString();
     },
 
+    // render categories names in select
+    showFilter: function() {
+      var output = [];
+      for (var i = 0; i < paginator.data.length; i++) {
+        for (var j = 0; j < paginator.data[i].categories.length; j++) {
+          output.push(this.data[i].categories[j]);
+        }
+      }
+      var unique = output.filter(function(item, i, ar){ return ar.indexOf(item) === i; });
+      
+      var fragment = document.createDocumentFragment(); 
+      for (i = 0; i < unique.length; i++) {
+        var option = document.createElement("option");
+        option.textContent = unique[i];
+        option.value = unique[i];
+        fragment.appendChild(option);
+      }
+      document.getElementById("categories").appendChild(fragment);
+    },
+
     nextPage: function() {
+      document.getElementById("container").innerHTML = "";
       paginator.settings.actualPage++;
-      // document.getElementById("container").innerHTML = "";
+      if ((paginator.settings.actualLastItem + paginator.settings.itemsPerPage) > paginator.data.length) {
+        var lastPage = paginator.data.length - paginator.settings.actualLastItem;
+        paginator.settings.actualLastItem += lastPage;
+      }
+      else {
+        paginator.settings.actualLastItem += paginator.settings.itemsPerPage;
+      }
+      paginator.settings.actualItem += paginator.settings.itemsPerPage;
+      paginator.renderArticles(paginator.data);
+      console.log(paginator.settings.actualItem);
+      console.log(paginator.settings.actualLastItem);
+    },
+
+    // "load more" button in mobile version
+    loadMore: function() {
+      paginator.settings.actualPage++;
       if ((paginator.settings.actualLastItem + paginator.settings.itemsPerPage) > paginator.data.length) {
         var lastPage = paginator.data.length - paginator.settings.actualLastItem;
         paginator.settings.actualLastItem += lastPage;
@@ -141,6 +177,7 @@ function load(url, callback) {
     },
 
     previousPage: function() {
+      document.getElementById("container").innerHTML = "";
       paginator.settings.actualPage--;
       // document.getElementById("container").innerHTML = "";
       console.log(paginator.data.length);
@@ -156,9 +193,9 @@ function load(url, callback) {
     },
 
     concretePage: function(event) {
-
+      document.getElementById("container").innerHTML = "";
       var a_target = event.target;
-      var attribute = a_target.getAttribute("data");
+      var attribute = a_target.getAttribute("data-page");
       attribute = parseInt(attribute);
       if (attribute > 0) {    //check if event.target is a number
         paginator.settings.actualPage = attribute;
@@ -172,6 +209,29 @@ function load(url, callback) {
         }
         paginator.renderArticles(paginator.data);
       }
+    },
+
+    // filter articles by categories
+    filter: function(event) {
+      var cat_target = event.target;
+      var attribute = cat_target.getAttribute("value");
+      if (attribute) {
+        document.getElementById("container").innerHTML = "";
+        var output = [];
+        for (var i = 0; i < paginator.data.length; i++) {
+          for (var j = 0; j < paginator.data[i].categories.length; j++) {
+            if (paginator.data[i].categories[j] === attribute) {
+              output.push(paginator.data[i]);
+            }
+          }
+        }
+        paginator.data = output;
+        paginator.settings.actualPage = 0;
+        paginator.settings.actualItem = 0;
+        paginator.settings.actualLastItem = paginator.settings.itemsPerPage;
+        paginator.renderArticles(paginator.data);
+        console.log(attribute);
+      }
     }
   }
 } (window, document))
@@ -181,7 +241,10 @@ load("http://academy.tutoky.com/api/json.php", paginator.init.bind(paginator));
 // pagination listeners
 document.getElementById("next").addEventListener("click", paginator.nextPage);
 document.getElementById("previous").addEventListener("click", paginator.previousPage);
-
+// "load more" button in mobile version
+document.getElementById("load").addEventListener("click", paginator.loadMore);
+document.getElementById("categories").addEventListener("click", paginator.filter);
+// listener for pages (1,2,3, etc...)
 document.getElementById("pages").addEventListener("click", paginator.concretePage);
 
 var links = document.getElementById("pages").getElementsByTagName("a");   // this works, it targets all "a" in "div"
