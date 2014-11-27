@@ -37,7 +37,7 @@ function load(url, callback) {
     // save data to this.data, init pagination and render articles
     init:function(data){
       this.data = data;
-      this.settings.numberOfPages = Math.ceil(this.data.length / this.settings.itemsPerPage);
+      this.originalData = data;   // used when data array is overwritten by filter function
       this.renderArticles(paginator.data);
       this.paginate();
       this.showFilter();
@@ -46,6 +46,7 @@ function load(url, callback) {
     // hide/show previous/next button, render pagination
     paginate: function() {
       document.getElementById("pages").innerHTML = "";
+      this.settings.numberOfPages = Math.ceil(this.data.length / this.settings.itemsPerPage);
       if (paginator.settings.actualPage === 1) {
         document.getElementById("previous").style.visibility = "hidden";
       }
@@ -156,8 +157,6 @@ function load(url, callback) {
       }
       paginator.settings.actualItem += paginator.settings.itemsPerPage;
       paginator.renderArticles(paginator.data);
-      console.log(paginator.settings.actualItem);
-      console.log(paginator.settings.actualLastItem);
     },
 
     // "load more" button in mobile version
@@ -172,15 +171,12 @@ function load(url, callback) {
       }
       paginator.settings.actualItem += paginator.settings.itemsPerPage;
       paginator.renderArticles(paginator.data);
-      console.log(paginator.settings.actualItem);
-      console.log(paginator.settings.actualLastItem);
     },
 
     previousPage: function() {
       document.getElementById("container").innerHTML = "";
       paginator.settings.actualPage--;
       // document.getElementById("container").innerHTML = "";
-      console.log(paginator.data.length);
       if (paginator.settings.actualLastItem === paginator.data.length) {
         var lastPage = paginator.settings.actualLastItem - paginator.settings.actualItem;
         paginator.settings.actualLastItem -= lastPage;
@@ -215,22 +211,29 @@ function load(url, callback) {
     filter: function(event) {
       var cat_target = event.target;
       var attribute = cat_target.getAttribute("value");
-      if (attribute) {
+      if (attribute === "all") {
+        paginator.data = paginator.originalData;
+        document.getElementById("container").innerHTML = "";
+        paginator.settings.actualPage = 1;
+        paginator.settings.actualItem = 0;
+        paginator.settings.actualLastItem = paginator.settings.itemsPerPage;
+        paginator.renderArticles(paginator.data);        
+      }
+      else if (attribute) {
         document.getElementById("container").innerHTML = "";
         var output = [];
-        for (var i = 0; i < paginator.data.length; i++) {
-          for (var j = 0; j < paginator.data[i].categories.length; j++) {
-            if (paginator.data[i].categories[j] === attribute) {
-              output.push(paginator.data[i]);
+        for (var i = 0; i < paginator.originalData.length; i++) {
+          for (var j = 0; j < paginator.originalData[i].categories.length; j++) {
+            if (paginator.originalData[i].categories[j] === attribute) {
+              output.push(paginator.originalData[i]);
             }
           }
         }
         paginator.data = output;
-        paginator.settings.actualPage = 0;
+        paginator.settings.actualPage = 1;
         paginator.settings.actualItem = 0;
         paginator.settings.actualLastItem = paginator.settings.itemsPerPage;
         paginator.renderArticles(paginator.data);
-        console.log(attribute);
       }
     }
   }
