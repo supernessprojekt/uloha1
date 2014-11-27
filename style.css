@@ -12,6 +12,7 @@ header {
 	background: blue;
 	padding: 9px;
 	padding-left: 20px;
+	padding-right: 30px;
 	border-bottom: 2px solid #002B98;
 	background: #7db9e8; /* Old browsers */
 	background: -webkit-linear-gradient(top, #7db9e8 0%,#207cca 0%,#2868d6 0%,#0c4299 100%); /* Chrome10+,Safari5.1+ */
@@ -29,9 +30,68 @@ article {
 	margin-bottom: 13px;
 	position: relative;
 }	
-header select {
+
+header ul {
+	/*top: -10px;
+	left: 120px;*/
+	list-style: none;
+	position: relative;
+	top: -5px;
+	display: inline-block;
 	float: right;
+	border: 1px solid #0D327A;
 }
+header ul li {
+	background-color: #0c4299;
+	float: left;
+	z-index: 5
+}
+/*header ul li:hover {
+	background: #393838;
+}
+header ul li:hover a {
+	color: #fff;
+}*/
+header ul li a {
+	display: block; 
+	padding: 5px;
+	padding-left: 10px;
+	padding-right: 10px;
+	color: white; 
+	text-decoration: none;
+	z-index: 5;
+}
+header ul:after {
+	content: ""; 
+	clear: both; 
+	display: block;
+	z-index: 5
+}
+header ul ul {
+	display: none;
+	position: absolute; top: 100%;
+	z-index: 5
+}
+header ul li:hover > ul {
+	display: block;
+	z-index: 5
+}
+header ul ul li {
+	left:-40px;
+	background-color: #0c4299;
+	float: none; 
+	border: 1px solid #0D327A;
+	position: relative;
+	z-index: 5
+}
+header ul ul li a {
+	padding: 10px;
+	z-index: 5
+}	
+/*header ul ul li a:hover {
+	background: #393838;
+}*/
+
 h1 {
 	font-weight: normal;
 	margin: 0px;

@@ -137,10 +137,13 @@ function load(url, callback) {
       
       var fragment = document.createDocumentFragment(); 
       for (i = 0; i < unique.length; i++) {
-        var option = document.createElement("option");
-        option.textContent = unique[i];
-        option.value = unique[i];
-        fragment.appendChild(option);
+        var li = document.createElement("li");
+        var a = document.createElement("a");
+        a.href = "#";
+        a.id = unique[i];
+        a.textContent = unique[i];
+        li.appendChild(a);
+        fragment.appendChild(li);
       }
       document.getElementById("categories").appendChild(fragment);
     },
@@ -210,7 +213,7 @@ function load(url, callback) {
     // filter articles by categories
     filter: function(event) {
       var cat_target = event.target;
-      var attribute = cat_target.getAttribute("value");
+      var attribute = cat_target.getAttribute("id");
       if (attribute === "all") {
         paginator.data = paginator.originalData;
         document.getElementById("container").innerHTML = "";
