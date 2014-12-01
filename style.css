@@ -135,6 +135,11 @@ nav a {
 	font-weight: bold;
 	margin: 3px;
 }
+.active-page {
+	color: white;
+	background: #2868d6;
+  cursor: default;
+}
 #previous {
 	background: #2868d6;
 	color: #E5EAFF;

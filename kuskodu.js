@@ -59,12 +59,30 @@ function load(url, callback) {
       else {
         document.getElementById("next").style.visibility = "initial";
       }
+      var show_dots = false;    // variable for checking if dots between pages were already shown
+      // for loop for page numbers
       for (var i = 1; i < this.settings.numberOfPages + 1; i++) {
-        var a = document.createElement("a");   
-        a.href = "#";
-        a.textContent = i;
-        a.setAttribute("data-page", i);
-        document.getElementById('pages').appendChild(a);
+        // display page number if page is first, last, or if page is near actual page
+        if (i === 1 || i === this.settings.numberOfPages || (i < this.settings.actualPage + 3 && i > this.settings.actualPage - 2)) {
+          var a = document.createElement("a");   
+          a.href = "#";
+          a.textContent = i;
+          a.setAttribute("data-page", i);
+          if (this.settings.actualPage === i) {
+            a.className = "active-page";
+          }
+          document.getElementById('pages').appendChild(a);
+          show_dots = true;
+        }
+        // if page is not displayed, show dots between page numbers
+        else {
+          if (show_dots) {
+            var dots = document.createElement("span");
+            dots.textContent = "...";
+            document.getElementById('pages').appendChild(dots);
+            show_dots = false;
+          }
+        }
       }
     },
 
@@ -253,5 +271,15 @@ document.getElementById("categories").addEventListener("click", paginator.filter
 // listener for pages (1,2,3, etc...)
 document.getElementById("pages").addEventListener("click", paginator.concretePage);
 
-var links = document.getElementById("pages").getElementsByTagName("a");   // this works, it targets all "a" in "div"
-// links.addEventListener("click", paginator.concretePage);    // how to set event listener on "a" in "div"?
+window.onresize = resize;
+
+function resize()
+{
+  var width = window.innerWidth;
+  if (width > 460) {
+    document.getElementById("container").innerHTML = "";
+    paginator.renderArticles(paginator.data);
+  }
+}
+
+var links = document.getElementById("pages").getElementsByTagName("a");   // targets all page links in "div"
