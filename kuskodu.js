@@ -30,6 +30,8 @@ function load(url, callback) {
     this.previousPage = this.previousPage.bind(this);
     this.concretePage = this.concretePage.bind(this);
     this.filter = this.filter.bind(this);
+    this.loadMore = this.loadMore.bind(this);
+    this.resize = this.resize.bind(this);
 
     this.settings = {
       'itemsPerPage': 12,           
@@ -37,8 +39,12 @@ function load(url, callback) {
       'actualItem': 0,
       'actualLastItem': 12,
       'numberOfPages': 0,
-      'container': "container"
+      'container': "container",
+      'url': "http://academy.tutoky.com/api/json.php"
     }
+
+    // load JSON
+    load(this.settings.url, this.init.bind(this));
   }
 
   // save data to Paginator.data, init pagination and render articles
@@ -95,7 +101,6 @@ function load(url, callback) {
 
   // render articles on current page from json object, call paginate function
   Paginator.prototype.renderArticles = function() {
-    console.log(Paginator.data);
     var i;   
     var fragment = document.createDocumentFragment(); 
     for(i = this.settings.actualItem; i < this.settings.actualLastItem; i++) {
@@ -141,7 +146,7 @@ function load(url, callback) {
       fragment.appendChild(article);    // save article to document fragment
     }
     document.getElementById(this.settings.container).appendChild(fragment);   // load all articles from document fragment
-    this.paginate();     
+    this.paginate();    
   };
   // this.renderArticles = renderArticles;
   // parse date from json timestamp to readable output
@@ -267,9 +272,23 @@ function load(url, callback) {
     }
   };
 
+  // resize fix - resize_toggle is set to true when 
+  this.resize_toggle = true;
+
+  Paginator.prototype.resize = function()
+  {
+    var width = window.innerWidth;
+    if (width < 460) {
+      resize_toggle = true;
+    }
+    if (width > 460 && resize_toggle) {
+      resize_toggle = false;
+      document.getElementById(this.settings.container).innerHTML = "";
+      this.renderArticles(Paginator.data);
+    }
+  }
 
   var paginator = new Paginator();
-  load("http://academy.tutoky.com/api/json.php", paginator.init.bind(paginator));
   // pagination listeners
   document.getElementById("next").addEventListener("click", paginator.nextPage);
   document.getElementById("previous").addEventListener("click", paginator.previousPage);
@@ -280,16 +299,6 @@ function load(url, callback) {
   document.getElementById("pages").addEventListener("click", paginator.concretePage);
   var links = document.getElementById("pages").getElementsByTagName("a");   // targets all page links in "div"
   
-  window.onresize = resize;
-
-  // this is not done yet
-  function resize()
-  {
-    var width = window.innerWidth;
-    if (width > 460) {
-      document.getElementById(this.settings.container).innerHTML = "";
-      paginator.renderArticles(paginator.data);
-    }
-  }
+  window.onresize = paginator.resize;
 } (window, document))
 
