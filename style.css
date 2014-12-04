@@ -135,6 +135,9 @@ nav a {
 	font-weight: bold;
 	margin: 3px;
 }
+#pages {
+	display: inline-block;
+}
 .active-page {
 	color: white;
 	background: #2868d6;
