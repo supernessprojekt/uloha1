@@ -157,7 +157,7 @@ nav a {
 	border-top-right-radius: 20px;
 	border-bottom-right-radius: 20px;
 }
-#load {
+#loadMore {
 	display: none;
 }
 img.play {
@@ -223,7 +223,7 @@ div.play-container {
 	nav {
 		display: none;
 	}
-	#load {
+	#loadMore {
 		display: block;
 		text-align: center;
 		margin: 0 auto;

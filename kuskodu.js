@@ -23,7 +23,7 @@ function load(url, callback) {
 }
 
 (function(window,document,undefined) {
-  // 'use strict';
+  'use strict';
   var Paginator = function(options) { 
     this.resize_toggle = true;
     this.data = [];
@@ -69,7 +69,7 @@ function load(url, callback) {
     // for loop for page numbers
     for (var i = 1; i < this.settings.numberOfPages + 1; i++) {
       // display page number if page is first, last, or if page is near actual page
-      if (i === 1 || i === this.settings.numberOfPages || (i < this.actualPage + 3 && i > this.actualPage - 2)) {
+      if (i === 1 || i === this.settings.numberOfPages || (i < this.actualPage + 2 && i > this.actualPage - 2)) {
         var a = document.createElement("a");   
         a.href = "#";
         a.textContent = i;
@@ -174,7 +174,7 @@ function load(url, callback) {
     return d.toDateString();
   };
 
-  // render categories names in select
+  // render categories names
   Paginator.prototype.showFilter = function() {
     var output = [];
     for (var i = 0; i < this.filteredData.length; i++) {
@@ -198,58 +198,20 @@ function load(url, callback) {
   };
 
   Paginator.prototype.nextPage = function() {
-    document.getElementById(this.settings.container).innerHTML = "";
-    this.actualPage++;
-    if ((this.actualLastItem + this.settings.itemsPerPage) > this.filteredData.length) {
-      var lastPage = this.filteredData.length - this.actualLastItem;
-      this.actualLastItem += lastPage;
-    }
-    else {
-      this.actualLastItem += this.settings.itemsPerPage;
-    }
-    this.actualItem += this.settings.itemsPerPage;
-    console.log(this.actualItem);
-    console.log(this.actualLastItem);
-    document.getElementById(this.settings.container).innerHTML = "";
-    this.renderArticles(this.filteredData);
-  };
-
-  // "load more" button in mobile version
-  Paginator.prototype.loadMore = function() {
-    this.actualPage++;
-    if ((this.actualLastItem + this.settings.itemsPerPage) > this.filteredData.length) {
-      var lastPage = this.filteredData.length - this.actualLastItem;
-      this.actualLastItem += lastPage;
-    }
-    else {
-      this.actualLastItem += this.settings.itemsPerPage;
-    }
-    this.actualItem += this.settings.itemsPerPage;
-    this.renderArticles(this.filteredData);
+    var calculated = this.actualPage + 1;
+    this.changePage(calculated);
   };
 
   Paginator.prototype.previousPage = function() {
-    document.getElementById(this.settings.container).innerHTML = "";
-    this.actualPage--;
-    if (this.actualLastItem === this.filteredData.length) {
-      var lastPage = this.actualLastItem - this.actualItem;
-      this.actualLastItem -= lastPage;
-    }
-    else {
-      this.actualLastItem -= this.settings.itemsPerPage; 
-    }
-    this.actualItem -= this.settings.itemsPerPage;
-    this.renderArticles(this.filteredData);
+    var calculated = this.actualPage - 1;
+    this.changePage(calculated);
   };
-
-  Paginator.prototype.concretePage = function(page_number) {
-    document.getElementById(this.settings.container).innerHTML = "";
-    // var a_target = event.target;
-    // var attribute = a_target.getAttribute("data-page");
-    // attribute = parseInt(attribute);
-    if (page_number > 0) {    //check if event.target is a number
-      this.actualPage = page_number;
-      this.actualItem = (page_number - 1)  * this.settings.itemsPerPage;
+ 
+  // changes current page to number set in attribute 'page'
+  Paginator.prototype.changePage = function(page) {
+    if (page > 0) {
+      this.actualPage = page;
+      this.actualItem = (page - 1) * this.settings.itemsPerPage;
 
       if (this.settings.numberOfPages === this.actualPage) {
         this.actualLastItem = this.filteredData.length;
@@ -259,6 +221,12 @@ function load(url, callback) {
       }
       this.renderArticles(this.filteredData);
     }
+  };
+
+  // load more button in mobile version
+  Paginator.prototype.loadMore = function() {
+    var calculated = this.actualPage + 1;
+    this.changePage(calculated);
   };
 
   // filter articles by categories
@@ -306,35 +274,39 @@ function load(url, callback) {
     }
   }
 
-  Paginator.prototype.changePage = function(event) {
+  // handles events called by event listeners - pagination
+  Paginator.prototype.eventHandler = function(event) {
     var page_target = event.target;
     var attr = page_target.getAttribute("id");
+    
     if (attr === "next") {
+      document.getElementById(this.settings.container).innerHTML = "";
       this.nextPage();
     }
     else if (attr === "previous") {
+      document.getElementById(this.settings.container).innerHTML = "";
       this.previousPage();
     }
     else if (attr === "page") {
-      var page_number = page_target.getAttribute("data-page");
-      page_number = parseInt(page_number);
-      this.concretePage(page_number);
+      var page = page_target.getAttribute("data-page");
+      page = parseInt(page);
+      document.getElementById(this.settings.container).innerHTML = "";
+      this.changePage(page);
+    }
+    else if (attr === "loadMore") {
+      this.nextPage();
     }
   }
 
-
   var myPagin = new Paginator({});
   load(myPagin.settings.url, myPagin.init.bind(myPagin));
+
   // pagination listeners
-  document.getElementById("pagin").addEventListener("click", myPagin.changePage.bind(myPagin));
+  document.getElementById("pagin").addEventListener("click", myPagin.eventHandler.bind(myPagin));
   // "load more" button in mobile version
-  document.getElementById("load").addEventListener("click", myPagin.loadMore.bind(myPagin));
+  document.getElementById("loadMore").addEventListener("click", myPagin.eventHandler.bind(myPagin));
   document.getElementById("categories").addEventListener("click", myPagin.filter.bind(myPagin));
   // listener for pages (1,2,3, etc...)
-  // document.getElementById("pages").addEventListener("click", myPagin.concretePage.bind(myPagin));
-  // var links = document.getElementById("pages").getElementsByTagName("a");   // targets all page links in "div"
-  
-  
   
   window.onresize = myPagin.resize.bind(myPagin);
 } (window, document))
