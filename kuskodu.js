@@ -27,6 +27,7 @@ function load(url, callback) {
   var Paginator = function(options) { 
     this.resize_toggle = true;
     this.data = [];
+    this.favorites = {};
     this.filteredData = [];
     this.actualPage = 1;
     this.actualItem = 0;
@@ -40,8 +41,18 @@ function load(url, callback) {
     }
   }
 
+  Paginator.prototype.initFavorites = function() {
+    if (localStorage.getItem('favorites') === null) {
+      console.log("empty");
+      localStorage['favorites'] = JSON.stringify({items: []});
+    }
+    return JSON.parse(localStorage['favorites'])
+  };
+
   // save data to Paginator.data, init pagination and render articles
   Paginator.prototype.init = function(data){
+    this.favorites = this.initFavorites();
+    console.log(this.favorites);
     this.data = data;
     this.filteredData = data;   // used when data array is overwritten by filter function
     this.renderArticles();
@@ -52,8 +63,8 @@ function load(url, callback) {
   Paginator.prototype.paginate = function() {
     document.getElementById("pagin").innerHTML = "";
     var show_dots = false;    // variable for checking if dots between pages were already shown
-    this.settings.numberOfPages = Math.ceil(this.filteredData.length / this.settings.itemsPerPage);
     var fragment = document.createDocumentFragment(); 
+    this.settings.numberOfPages = Math.ceil(this.filteredData.length / this.settings.itemsPerPage);
 
     var a_previous = document.createElement("a");
     a_previous.id = "previous";
@@ -73,7 +84,6 @@ function load(url, callback) {
         var a = document.createElement("a");   
         a.href = "#";
         a.textContent = i;
-        a.id = "page";
         a.setAttribute("data-page", i);
         if (this.actualPage === i) {
           a.className = "active-page";
@@ -121,23 +131,24 @@ function load(url, callback) {
   Paginator.prototype.renderArticles = function() {
     var i;   
     var fragment = document.createDocumentFragment(); 
+    
     for(i = this.actualItem; i < this.actualLastItem; i++) {
       var article = document.createElement("article");      
-      article.id = i;
       var div = document.createElement("div");              
       div.className = "play-container";
 
       var div_hover = document.createElement("div");    
       div_hover.id = "hover";
-      var p_hover = document.createElement("p");
-      p_hover.textContent = this.filteredData[i].title;  
       var p_categories = document.createElement("p");
       
       var categories = (this.filteredData[i].categories).toString();
-      categories = categories.replace(/,/g , ", ")
-      p_categories.textContent = categories; 
+      categories = categories.replace(/,/g , ", ");
+      if (categories === "") {
+        categories = "no category";
+      }
+      p_categories.textContent = "Categories: " + categories; 
 
-      var img_play = document.createElement("img");         
+      var img_play = document.createElement("img");
       img_play.className = "play";
       img_play.src = "playbutton.png";
 
@@ -150,7 +161,7 @@ function load(url, callback) {
 
       var time = document.createElement("time");   
       time.datetime = this.filteredData[i].timestamp;
-      time.textContent = myPagin.showTime(this.filteredData[i].timestamp);  
+      time.textContent = myPagin.showTime(this.filteredData[i].timestamp);
 
       article.appendChild(div); 
       article.appendChild(div_hover);
@@ -158,7 +169,30 @@ function load(url, callback) {
       div.appendChild(img_placeholder);
       article.appendChild(h2);
       article.appendChild(time);
-      div_hover.appendChild(p_hover);
+      
+      var fav_span = document.createElement("span");
+      var img_fav = document.createElement("img");
+
+      var fav_length = this.favorites.items.length;
+      var fav_set = false;
+      for (var j = 0; j < fav_length; j++) {
+        if (this.favorites.items[j] === this.filteredData[i].title) {         
+          img_fav.src = "fav_set.png";
+          fav_set = true;
+        }
+      }
+      if (!fav_set) {
+        img_fav.src = "fav_blank.png";
+      };
+
+      img_fav.className = "favorites";
+      img_fav.setAttribute("data_name", this.filteredData[i].title);
+      img_fav.addEventListener("click", myPagin.changeFavorites.bind(myPagin));
+
+      fav_span.appendChild(img_fav);
+      article.appendChild(fav_span);
+
+      // div_hover.appendChild(p_fav);
       div_hover.appendChild(p_categories);
 
       fragment.appendChild(article);    // save article to document fragment
@@ -177,7 +211,8 @@ function load(url, callback) {
   // render categories names
   Paginator.prototype.showFilter = function() {
     var output = [];
-    for (var i = 0; i < this.filteredData.length; i++) {
+    var fDataLength = this.filteredData.length;
+    for (var i = 0; i < fDataLength; i++) {
       for (var j = 0; j < this.filteredData[i].categories.length; j++) {
         output.push(this.filteredData[i].categories[j]);
       }
@@ -185,7 +220,8 @@ function load(url, callback) {
     var unique = output.filter(function(item, i, ar){ return ar.indexOf(item) === i; });
     
     var fragment = document.createDocumentFragment(); 
-    for (i = 0; i < unique.length; i++) {
+    var unique_length = unique.length;
+    for (i = 0; i < unique_length; i++) {
       var li = document.createElement("li");
       var a = document.createElement("a");
       a.href = "#";
@@ -198,13 +234,11 @@ function load(url, callback) {
   };
 
   Paginator.prototype.nextPage = function() {
-    var calculated = this.actualPage + 1;
-    this.changePage(calculated);
+    this.changePage(this.actualPage + 1);
   };
 
   Paginator.prototype.previousPage = function() {
-    var calculated = this.actualPage - 1;
-    this.changePage(calculated);
+    this.changePage(this.actualPage - 1);
   };
  
   // changes current page to number set in attribute 'page'
@@ -242,10 +276,34 @@ function load(url, callback) {
       this.actualLastItem = this.settings.itemsPerPage;
       this.renderArticles(this.filteredData);        
     }
+    else if (attribute === "fav") {
+      document.getElementById(this.settings.container).innerHTML = "";
+      var output = [];
+      var data_length = this.data.length;
+      for (var i = 0; i < data_length; i++) {
+        for (var j = 0; j < this.favorites.items.length; j++) {
+          if (this.data[i].title === this.favorites.items[j]) {
+            output.push(this.data[i]);            
+          }
+        }
+      }
+
+      console.log(output);
+      this.filteredData = output;
+      this.actualPage = 1;
+      this.actualItem = 0;
+      if (this.settings.itemsPerPage >= this.filteredData.length) {
+        this.actualLastItem = this.filteredData.length;
+      }
+      else this.actualLastItem = this.settings.itemsPerPage;      
+      this.renderArticles(this.filteredData);
+    }
     else if (attribute) {
       document.getElementById(this.settings.container).innerHTML = "";
       var output = [];
-      for (var i = 0; i < this.data.length; i++) {
+
+      var data_length = this.data.length;
+      for (var i = 0; i < data_length; i++) {
         for (var j = 0; j < this.data[i].categories.length; j++) {
           if (this.data[i].categories[j] === attribute) {
             output.push(this.data[i]);
@@ -255,7 +313,10 @@ function load(url, callback) {
       this.filteredData = output;
       this.actualPage = 1;
       this.actualItem = 0;
-      this.actualLastItem = this.settings.itemsPerPage;
+      if (this.settings.itemsPerPage >= this.filteredData.length) {
+        this.actualLastItem = this.filteredData.length;
+      }
+      else this.actualLastItem = this.settings.itemsPerPage;
       this.renderArticles(this.filteredData);
     }
   };
@@ -287,15 +348,37 @@ function load(url, callback) {
       document.getElementById(this.settings.container).innerHTML = "";
       this.previousPage();
     }
-    else if (attr === "page") {
+    else if (attr === "loadMore") {
+      this.nextPage();
+    }
+    else {
       var page = page_target.getAttribute("data-page");
       page = parseInt(page);
       document.getElementById(this.settings.container).innerHTML = "";
       this.changePage(page);
     }
-    else if (attr === "loadMore") {
-      this.nextPage();
+    
+  }
+
+  Paginator.prototype.changeFavorites = function(event) {
+    var fav_target = event.target;
+    var attr = fav_target.getAttribute("data_name");
+    var fav_set = false;
+    var fav_length = this.favorites.items.length;
+    for (var i = 0; i < fav_length; i++) {
+      if (this.favorites.items[i] === attr) {
+        fav_set = true;
+        this.favorites.items.splice(i, 1);
+      };
     }
+    if (fav_set === true) {      
+      fav_target.setAttribute("src", "fav_blank.png");
+    }
+    else {
+      this.favorites.items.push(attr);
+      fav_target.setAttribute("src", "fav_set.png");
+    }
+    localStorage['favorites'] = JSON.stringify(this.favorites);
   }
 
   var myPagin = new Paginator({});
@@ -306,7 +389,6 @@ function load(url, callback) {
   // "load more" button in mobile version
   document.getElementById("loadMore").addEventListener("click", myPagin.eventHandler.bind(myPagin));
   document.getElementById("categories").addEventListener("click", myPagin.filter.bind(myPagin));
-  // listener for pages (1,2,3, etc...)
   
   window.onresize = myPagin.resize.bind(myPagin);
 } (window, document))
