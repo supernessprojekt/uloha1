@@ -30,10 +30,11 @@ article {
 	margin-bottom: 13px;
 	position: relative;
 }	
-
+ul.categories {
+	margin: 0px;
+	padding: 0px;
+}
 header ul {
-	/*top: -10px;
-	left: 120px;*/
 	list-style: none;
 	position: relative;
 	top: -5px;
@@ -44,15 +45,8 @@ header ul {
 header ul li {
 	background-color: #0c4299;
 	float: left;
-	z-index: 5;
 	width: 115px;
 }
-/*header ul li:hover {
-	background: #393838;
-}
-header ul li:hover a {
-	color: #fff;
-}*/
 header ul li a {
 	display: block; 
 	padding: 5px;
@@ -60,22 +54,13 @@ header ul li a {
 	padding-right: 10px;
 	color: white; 
 	text-decoration: none;
-	z-index: 5;
-}
-header ul:after {
-	content: ""; 
-	clear: both; 
-	display: block;
-	z-index: 5
 }
 header ul ul {
 	display: none;
 	position: absolute; top: 100%;
-	z-index: 5
 }
 header ul li:hover > ul {
 	display: block;
-	z-index: 5
 }
 header ul ul li {
 	left:-40px;
@@ -87,11 +72,7 @@ header ul ul li {
 }
 header ul ul li a {
 	padding: 10px;
-	z-index: 5
 }	
-/*header ul ul li a:hover {
-	background: #393838;
-}*/
 
 h1 {
 	font-weight: normal;
@@ -145,21 +126,21 @@ nav a {
 	background: #2868d6;
   cursor: default;
 }
-#previous {
+.previous {
 	background: #2868d6;
 	color: #E5EAFF;
 	padding-left: 15px;
 	border-top-left-radius: 20px;
 	border-bottom-left-radius: 20px;
 }
-#next {
+.next {
 	background: #2868d6;
 	color: #E5EAFF;
 	padding-right: 15px;
 	border-top-right-radius: 20px;
 	border-bottom-right-radius: 20px;
 }
-#loadMore {
+.loadMore {
 	display: none;
 }
 img.play {
@@ -168,7 +149,7 @@ img.play {
 	left: 70px;
 	filter: drop-shadow(0px 0px 15px black);
 }
-#hover {
+.overlay {
   width: 180px;
   height: 96px;
   top: 5px;
@@ -182,12 +163,12 @@ img.play {
    -moz-transition: opacity .25s ease-in-out;
    -webkit-transition: opacity .25s ease-in-out;
 }
-#hover:hover {
+.overlay:hover {
   opacity: 0.9;
   display: block;
 	background-color: rgba(0,0,0,0.8);
 }
-article span:hover #hover{
+article span:hover .overlay{
   opacity: 0.9;
   display: block;
 	background-color: rgba(0,0,0,0.8);
@@ -215,7 +196,7 @@ p.add-favorites {
 	cursor: pointer;
 }
 
-@media only screen and (max-width: 460px){
+@media only screen and (max-width: 470px){
 
 	article {
 		display: block;
@@ -249,7 +230,7 @@ p.add-favorites {
 	nav {
 		display: none;
 	}
-	#loadMore {
+	.loadMore {
 		display: block;
 		text-align: center;
 		margin: 0 auto;
@@ -265,10 +246,10 @@ p.add-favorites {
 		top: 10px;
 		left: 40px;
 	}
-	#hover {
+	.overlay {
 		display: none;
 	}
-	#hover:hover {
+	.overlay:hover {
 		display: none;
 	}
 }
