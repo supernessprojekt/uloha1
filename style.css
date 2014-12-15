@@ -18,7 +18,7 @@ header {
 	background: -webkit-linear-gradient(top, #7db9e8 0%,#207cca 0%,#2868d6 0%,#0c4299 100%); /* Chrome10+,Safari5.1+ */
 	background: linear-gradient(to bottom, #7db9e8 0%,#207cca 0%,#2868d6 0%,#0c4299 100%); /* W3C */
 }	
-#video-container {
+.video-container {
 	padding: 10px;
 	padding-top: 5px;
 }
