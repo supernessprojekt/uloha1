@@ -34,13 +34,16 @@ function load(url, callback) {
     this.actualItem = 0;
     this.actualLastItem = 12;
     this.numberOfPages = 0;
-    this.videos = "videos";
 
     this.settings = {
       itemsPerPage: options.itemsPerPage || 12,
-      container: options.container || "container",
+      container: options.container || "videos",
+      navigation: options.navigation || "pagin",
+      categories: options.categories || "categories",
       url: options.url || "http://academy.tutoky.com/api/json.php"
     }
+
+    this.navRoot = document.getElementById(this.settings.navigation);
   }
 
   // save empty object to localStorage if it's null
@@ -56,30 +59,13 @@ function load(url, callback) {
     this.favorites = this.initFavorites();
     this.data = data;
     this.filteredData = data;   // used when data array is overwritten by filter function
-    this.showHeader();
-    this.renderLayout();
-    this.renderArticles();    
+    this.showCategories();
+    this.renderArticles(); 
   };
-
-  // render layout for videos
-  Paginator.prototype.renderLayout = function() {
-    var div_video_c = document.createElement("div");
-    div_video_c.className = "video-container";
-    var div_videos = document.createElement("div");
-    div_videos.className = "videos";
-    div_video_c.appendChild(div_videos);
-    document.getElementById(this.settings.container).appendChild(div_video_c);
-  }
 
   // hide/show previous/next button, render pagination
   Paginator.prototype.paginate = function() {
-    // document.getElementsByClassName("pagin")[0].innerHTML = "";
     if (this.paginationShowed === false) {
-      var footer = document.createElement("footer");
-      var nav = document.createElement("nav");
-      nav.className = "pagin";
-      nav.appendChild(footer);
-
       var show_dots = false;    // variable for checking if dots between pages were already shown
       var fragment = document.createDocumentFragment(); 
       this.settings.numberOfPages = Math.ceil(this.filteredData.length / this.settings.itemsPerPage);
@@ -89,7 +75,7 @@ function load(url, callback) {
       a_previous.href = "#";
       a_previous.onclick = "previousPage()";
       a_previous.textContent = "< PREVIOUS";
-      a_previous.setAttribute("data-page", "previous");
+      a_previous.setAttribute("data_page", "previous");
       fragment.appendChild(a_previous);
 
       var div = document.createElement("div");
@@ -98,28 +84,12 @@ function load(url, callback) {
       var fragment_pages = document.createDocumentFragment(); 
       // for loop for page numbers
       for (var i = 1; i < this.settings.numberOfPages + 1; i++) {
-        // display page number if page is first, last, or if page is near actual page
-        if (i === 1 || i === this.settings.numberOfPages || (i < this.actualPage + 2 && i > this.actualPage - 2)) {
-          var a = document.createElement("a");   
-          a.href = "#";
-          a.textContent = i;
-          a.setAttribute("data-page", i);
-          if (this.actualPage === i) {
-            a.className = "active-page";
-          }
-          div.appendChild(a);
-          fragment_pages.appendChild(a);
-          show_dots = true;
-        }
-        // if page is not displayed, show dots between page numbers
-        else {
-          if (show_dots) {
-            var dots = document.createElement("span");
-            dots.textContent = "...";
-            fragment_pages.appendChild(dots);
-            show_dots = false;
-          }
-        }
+        var a = document.createElement("a");   
+        a.href = "#";
+        a.textContent = i;
+        a.setAttribute("data_page", i);
+        div.appendChild(a);
+        fragment_pages.appendChild(a);
       }
       div.appendChild(fragment_pages);
       fragment.appendChild(div);
@@ -128,25 +98,32 @@ function load(url, callback) {
       a_next.className = "next";
       a_next.href = "#";
       a_next.textContent = "NEXT >";
-      a_next.setAttribute("data-page", "next");
+      a_next.setAttribute("data_page", "next");
       fragment.appendChild(a_next);
 
-      nav.addEventListener("click", myPagin.eventHandler.bind(myPagin));
-      nav.appendChild(fragment);
-      document.getElementById(this.settings.container).appendChild(nav);
+      document.getElementById(this.settings.navigation).addEventListener("click", this.eventHandler.bind(this));
+      document.getElementById(this.settings.navigation).appendChild(fragment);
       this.paginationShowed = true;
     }
+
+    for (var i = 1; i < this.settings.numberOfPages + 1; i++) {
+      if (i === 1 || i === this.settings.numberOfPages || (i < this.actualPage + 2 && i > this.actualPage - 2)) {
+        this.navRoot.querySelector('[data_page="'+i+'"]').style.display = "inline";
+        show_dots = true;
+      }
+    }
+
     if (this.actualPage === 1) {
-      document.getElementsByClassName("previous")[0].style.visibility = "hidden";
+      this.navRoot.getElementsByClassName("previous")[0].style.visibility = "hidden";
     }
     else {
-      document.getElementsByClassName("previous")[0].style.visibility = "initial";
+      this.navRoot.getElementsByClassName("previous")[0].style.visibility = "initial";
     }
     if (this.actualPage === this.settings.numberOfPages) {
-      document.getElementsByClassName("next")[0].style.visibility = "hidden";
+      this.navRoot.getElementsByClassName("next")[0].style.visibility = "hidden";
     }
     else {
-      document.getElementsByClassName("next")[0].style.visibility = "initial";
+      this.navRoot.getElementsByClassName("next")[0].style.visibility = "initial";
     }
   };
 
@@ -221,7 +198,7 @@ function load(url, callback) {
       fragment.appendChild(article);    // save article to document fragment
     }
     // div_videos.appendChild(fragment);
-    document.getElementsByClassName(this.videos)[0].appendChild(fragment);   // load all articles from document fragment
+    document.getElementById(this.settings.container).appendChild(fragment);   // load all articles from document fragment
     this.paginate();    
   };
 
@@ -233,30 +210,7 @@ function load(url, callback) {
   };
 
   // render categories names and header
-  Paginator.prototype.showHeader = function() {
-    var header = document.createElement("header");    
-    var h1 = document.createElement("h1");
-    h1.textContent = "LATEST VIDEOS";
-    header.appendChild(h1);
-    
-    var ul = document.createElement("ul");
-    ul.className = "categories";
-    var li = document.createElement("li");
-    var a_cat = document.createElement("a");
-    a_cat.href = "#";
-    a_cat.textContent = "Categories";
-
-
-    var ul_rollout = document.createElement("ul");
-    ul_rollout.id = "categories";
-
-    li.appendChild(a_cat);
-    li.appendChild(ul_rollout);
-    ul.appendChild(li);
-    header.appendChild(ul);
-
-    document.getElementById(this.settings.container).appendChild(header);
-
+  Paginator.prototype.showCategories = function() {
     var output = [];
     var fDataLength = this.filteredData.length;
     for (var i = 0; i < fDataLength; i++) {
@@ -267,6 +221,21 @@ function load(url, callback) {
     var unique = output.filter(function(item, i, ar){ return ar.indexOf(item) === i; });
     
     var fragment = document.createDocumentFragment(); 
+    var li_all = document.createElement("li");
+    var a_all = document.createElement("a");
+    li_all.appendChild(a_all);
+    a_all.setAttribute("cat-id","all");
+    a_all.href = "#";
+    a_all.textContent = "All categories";
+    var li_fav = document.createElement("li");
+    var a_fav = document.createElement("a");
+    li_fav.appendChild(a_fav);
+    a_fav.setAttribute("cat-id","fav");
+    a_fav.href = "#";
+    a_fav.textContent = "Favorites";
+    fragment.appendChild(li_all);
+    fragment.appendChild(li_fav);
+
     var unique_length = unique.length;
     for (i = 0; i < unique_length; i++) {
       var li = document.createElement("li");
@@ -278,7 +247,7 @@ function load(url, callback) {
       li.appendChild(a);
       fragment.appendChild(li);
     }
-    // document.getElementsByClassName("cat_rollout")[0].appendChild(fragment);
+    document.getElementById(this.settings.categories).appendChild(fragment);
   };
 
   Paginator.prototype.nextPage = function() {
@@ -343,7 +312,7 @@ function load(url, callback) {
         }
         this.filteredData = output;
       }
-      document.getElementsByClassName(this.videos)[0].innerHTML = "";
+      document.getElementById(this.settings.container).innerHTML = "";
       this.actualPage = 1;
       this.actualItem = 0;
       if (this.settings.itemsPerPage >= this.filteredData.length) {
@@ -363,22 +332,23 @@ function load(url, callback) {
     }
     if (width > 460 && this.resize_toggle) {
       this.resize_toggle = false;
-      document.getElementsByClassName(this.videos)[0].innerHTML = "";
+      document.getElementById(this.settings.container).innerHTML = "";
       this.renderArticles(this.data);
     }
   }
 
   // handles events called by event listeners - pagination
   Paginator.prototype.eventHandler = function(event) {
+    event.preventDefault();
     var page_target = event.target;
-    var attr = page_target.getAttribute("data-page");
+    var attr = page_target.getAttribute("data_page");
     
     if (attr === "next") {
-      document.getElementsByClassName(this.videos)[0].innerHTML = "";
+      document.getElementById(this.settings.container).innerHTML = "";
       this.nextPage();
     }
     else if (attr === "previous") {
-      document.getElementsByClassName(this.videos)[0].innerHTML = "";
+      document.getElementById(this.settings.container).innerHTML = "";
       this.previousPage();
     }
     else if (attr === "loadMore") {
@@ -387,7 +357,7 @@ function load(url, callback) {
     else {
       if (attr) {
         var page = parseInt(attr);
-        document.getElementsByClassName(this.videos)[0].innerHTML = "";
+        document.getElementById(this.settings.container).innerHTML = "";
         this.changePage(page);
       }
     }
@@ -418,11 +388,12 @@ function load(url, callback) {
   var myPagin = new Paginator({});
   load(myPagin.settings.url, myPagin.init.bind(myPagin));
 
+  var myPagin2 = new Paginator({container: 'druhy', navigation: 'druha'});
+  load(myPagin2.settings.url, myPagin2.init.bind(myPagin2));
+
   // pagination listeners
-  // document.getElementById("pagin").addEventListener("click", myPagin.eventHandler.bind(myPagin));
-  // "load more" button in mobile version
   document.getElementsByClassName("loadMore")[0].addEventListener("click", myPagin.eventHandler.bind(myPagin));
-  document.getElementsByClassName("cat_rollout")[0].addEventListener("click", myPagin.filter.bind(myPagin));
+  document.getElementById("categories").addEventListener("click", myPagin.filter.bind(myPagin));
   
   window.onresize = myPagin.resize.bind(myPagin);
 } (window, document))

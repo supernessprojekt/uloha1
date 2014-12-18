@@ -108,7 +108,7 @@ nav {
 	border-top: 1px solid #DADADA;
 }
 nav a {
-	display: inline;
+	display: none;
 	padding: 10px;
 	color: #002B98;
 	background: #E5EAFF;
@@ -127,6 +127,7 @@ nav a {
   cursor: default;
 }
 .previous {
+	display: inline;
 	background: #2868d6;
 	color: #E5EAFF;
 	padding-left: 15px;
@@ -134,6 +135,7 @@ nav a {
 	border-bottom-left-radius: 20px;
 }
 .next {
+	display: inline;
 	background: #2868d6;
 	color: #E5EAFF;
 	padding-right: 15px;
