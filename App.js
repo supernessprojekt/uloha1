@@ -29,55 +29,12 @@
     this.data = data;
     this.filteredData = data;   // used when data array is overwritten by filter function
     var renderer = new Renderer(this); 
-    renderer.renderCategories(this);    
-  };
-
-  // filter articles by categories
-  App.prototype.filter = function(event) {
-    var cat_target = event.target;
-    var attribute = cat_target.getAttribute("cat-id");
-    if(attribute) {
-      if (attribute === "all") {
-        this.filteredData = this.data;
-      }
-      else if (attribute === "fav") {
-        var output = [];
-        var data_length = this.data.length;
-        for (var i = 0; i < data_length; i++) {
-          for (var j = 0; j < this.favorites.items.length; j++) {
-            if (this.data[i].title === this.favorites.items[j]) {
-              output.push(this.data[i]);            
-            }
-          }
-        }
-        this.filteredData = output;
-      }
-      else {
-        var output = [];
-        var data_length = this.data.length;
-        for (var i = 0; i < data_length; i++) {
-          for (var j = 0; j < this.data[i].categories.length; j++) {
-            if (this.data[i].categories[j] === attribute) {
-              output.push(this.data[i]);
-            }
-          }
-        }
-        this.filteredData = output;
-      }
-      document.getElementById(this.settings.container).innerHTML = "";
-      this.actualPage = 1;
-      this.actualItem = 0;
-      if (this.settings.itemsPerPage >= this.filteredData.length) {
-        this.actualLastItem = this.filteredData.length;
-      }
-      else this.actualLastItem = this.settings.itemsPerPage;      
-      new Renderer(this);        
-    }
+    renderer.renderCategories(this);
+    var cat = new Categories(this);   
   };
 
   // resize fix - fixes issue when there are more articles loaded through "load more" button and then screen is resized
-  App.prototype.resize = function()
-  {
+  App.prototype.resize = function()  {
     var width = window.innerWidth;
     if (width < 460) {
       this.resize_toggle = true;
@@ -115,16 +72,9 @@
     }
   }
 
-  
-
   var myPagin = new App({});
-  // load(myPagin.settings.url, myPagin.init.bind(myPagin));
   new Loader(myPagin.settings.url, myPagin.init.bind(myPagin));
 
-   // pagination listeners
-  document.getElementsByClassName("loadMore")[0].addEventListener("click", myPagin.eventHandler.bind(myPagin));
-  document.getElementById("categories").addEventListener("click", myPagin.filter.bind(myPagin));
-  
   window.onresize = myPagin.resize.bind(myPagin);
 } (window, document))
 

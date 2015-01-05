@@ -229,7 +229,7 @@ p.add-favorites {
 		color: grey;
     padding-left: 0px;
 	}
-	nav {
+	.previous, .next, #pages {
 		display: none;
 	}
 	.loadMore {
