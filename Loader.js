@@ -15,7 +15,7 @@ var Loader = function(url, callback) {
     if(xhr.readyState === 4) {
       JSONObject = JSON.parse(xhr.responseText);
       callback(JSONObject);
-    }          
+    }
   }
   xhr.open('GET', url, true);
   xhr.send('');

@@ -197,6 +197,9 @@ p.add-favorites {
 	border-radius: 5px;
 	cursor: pointer;
 }
+.dots1 {
+	display: none;
+}
 
 @media only screen and (max-width: 470px){
 

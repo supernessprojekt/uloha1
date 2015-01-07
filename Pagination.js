@@ -19,12 +19,24 @@ var Pagination = function(data, that) {
     var fragment_pages = document.createDocumentFragment(); 
     // for loop for page numbers
     for (var i = 1; i < that.settings.numberOfPages + 1; i++) {
-      var a = document.createElement("a");   
+      var a = document.createElement("a");
       a.href = "#";
       a.textContent = i;
       a.setAttribute("data_page", i);
       div.appendChild(a);
       fragment_pages.appendChild(a);
+      if (i === 1) {
+        var dots = document.createElement("span");
+        dots.textContent = "...";
+        dots.className = "dots1";
+        fragment_pages.appendChild(dots);
+      };
+      if (i == that.settings.numberOfPages - 1) {
+        var dots = document.createElement("span");
+        dots.textContent = "...";
+        dots.className = "dots2";
+        fragment_pages.appendChild(dots);
+      };
     }
     div.appendChild(fragment_pages);
     fragment.appendChild(div);
@@ -49,26 +61,48 @@ var Pagination = function(data, that) {
   }
 
   for (var i = 1; i < that.settings.numberOfPages + 1; i++) {
+    var aTarget = that.navRoot.querySelector('[data_page="'+i+'"]');
     if (i === 1 || i === that.settings.numberOfPages || (i < that.actualPage + 2 && i > that.actualPage - 2)) {
-      that.navRoot.querySelector('[data_page="'+i+'"]').style.display = "inline";
-      show_dots = true;
+      aTarget.style.display = "inline";
     }
     else {
-      that.navRoot.querySelector('[data_page="'+i+'"]').style.display = "none";
+      aTarget.style.display = "none";
+    } 
+    if (that.actualPage === i) {
+      aTarget.className = "active-page";
+    }
+    else {
+      aTarget.className = "";
     }
   }
 
+  var dots1 = that.navRoot.getElementsByClassName("dots1")[0];
+  if (that.actualPage > 3) {
+    dots1.style.display = "inline";
+  }
+  else {
+    dots1.style.display = "none";
+  }
+  var dots2 = that.navRoot.getElementsByClassName("dots2")[0];
+  if (that.actualPage > that.settings.numberOfPages - 3) {    
+    dots2.style.display = "none";
+  }
+  else {
+    dots2.style.display = "inline";
+  }
+  var previousPage = that.navRoot.getElementsByClassName("previous")[0];
   if (that.actualPage === 1) {
-    that.navRoot.getElementsByClassName("previous")[0].style.visibility = "hidden";
+    previousPage.style.visibility = "hidden";
   }
   else {
-    that.navRoot.getElementsByClassName("previous")[0].style.visibility = "initial";
+    previousPage.style.visibility = "initial";
   }
+  var nextPage = that.navRoot.getElementsByClassName("next")[0];
   if (that.actualPage === that.settings.numberOfPages) {
-    that.navRoot.getElementsByClassName("next")[0].style.visibility = "hidden";
+    nextPage.style.visibility = "hidden";
   }
   else {
-    that.navRoot.getElementsByClassName("next")[0].style.visibility = "initial";
+    nextPage.style.visibility = "initial";
   }
 };
 
@@ -79,11 +113,6 @@ Pagination.nextPage = function(that) {
 Pagination.previousPage = function(that) {
   this.changePage(that.actualPage - 1, that);
 };
-// load more button in mobile version
-// Paginator.prototype.loadMore = function() {
-//   var calculated = this.actualPage + 1;
-//   this.changePage(calculated);
-// };
 
 // changes current page to number set in attribute 'page'
 Pagination.changePage = function(page, that) {

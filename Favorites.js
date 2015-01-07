@@ -20,7 +20,7 @@ Favorites.prototype.changeFavorites = function(event) {
       this.favorites.items.splice(i, 1);
     };
   }
-  if (fav_set === true) {      
+  if (fav_set === true) {
     fav_target.setAttribute("src", "fav_blank.png");
   }
   else {
